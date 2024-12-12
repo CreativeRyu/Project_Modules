@@ -1,4 +1,5 @@
 import pygame
+import math
 import sys
 path = "Game Dev Projects/01 Space Boi/"
 
@@ -17,23 +18,32 @@ display = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
 # # # # Import Images # # # # 
 ship_surface = pygame.image.load(path+"images/player/SmartSpaceShip.png").convert_alpha()
+ship_surface = pygame.transform.scale2x(ship_surface)
 ship_rectangle = ship_surface.get_rect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
 laser_surface = pygame.image.load(path+"images/projectiles/single_red1.png").convert_alpha()
 laser_rectangle = laser_surface.get_rect(midbottom = (ship_rectangle.midtop))
 
 background_surface = pygame.image.load(path+"./images/background/background1.png").convert()
 font = pygame.font.Font(path+"./fonts/subatomic.ttf", 50)
-titel_surface = font.render("Space Boi", True, "White")
-titel_rectangle = titel_surface.get_rect(center=(WINDOW_WIDTH / 2, 150))
+title_surface = font.render("Space Boi", True, "White")
+title_rectangle = title_surface.get_rect(center=(WINDOW_WIDTH / 2, 150))
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # Player Methods # # # # 
 x_speed = 0
 y_speed = 0
-move_speed = 4
+move_speed = 7
 
 def move(x_speed, y_speed):
-    ship_rectangle.move_ip((x_speed * move_speed, y_speed * move_speed))
+    magnitude = math.sqrt(x_speed ** 2 + y_speed ** 2)
+    
+    if magnitude != 0:
+        normalized_x = x_speed / magnitude
+        normalized_y = y_speed / magnitude
+    else:
+        normalized_x, normalized_y = 0, 0
+    
+    ship_rectangle.move_ip(normalized_x * move_speed, normalized_y * move_speed)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -60,7 +70,9 @@ while True:
     display.blit(background_surface, (0, 0))
     display.blit(ship_surface, ship_rectangle)
     display.blit(laser_surface, laser_rectangle)
-    display.blit(titel_surface, titel_rectangle)
+    display.blit(title_surface, title_rectangle)
+    
+    # Draw custom Rectangles here
     
     # draw final frame
     pygame.display.update()
