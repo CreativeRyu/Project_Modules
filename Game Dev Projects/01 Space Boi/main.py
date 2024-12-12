@@ -56,14 +56,14 @@ while True:
             sys.exit()
         
     #Limiting Frame Rate
-    clock.tick(60)
+    delta_time = clock.tick(60) / 1000
     
     # Analog Stick
     x_speed = round(pygame.joystick.Joystick(0).get_axis(0))
     y_speed = round(pygame.joystick.Joystick(0).get_axis(1))
     move(x_speed, y_speed)
     
-    laser_rectangle.y -= 7
+    laser_rectangle.y -= round(200 * delta_time)
     
     # 2. Updates
     display.fill((0, 0, 0))
@@ -73,6 +73,7 @@ while True:
     display.blit(title_surface, title_rectangle)
     
     # Draw custom Rectangles here
+    pygame.draw.rect(display, "white", title_rectangle.inflate(50, 40), width=7, border_radius=5)
     
     # draw final frame
     pygame.display.update()
