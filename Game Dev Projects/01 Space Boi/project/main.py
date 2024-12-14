@@ -22,6 +22,22 @@ def laser_update(laser_list, speed=300):
         if laser.bottom < 0:
             laser_list.remove(laser)
 
+# Cooldown Timer für den Laser
+def laser_cooldown(can_fire, duration= 500):
+    if not can_fire: 
+        current_time = pygame.time.get_ticks()
+        if current_time - last_laser_time >= duration:
+            can_fire = True
+    return can_fire
+
+def display_score():
+    score = f"Score: {pygame.time.get_ticks() // 1000}"
+    score_surface = font_score.render(score, True, "White")
+    score_rect = score_surface.get_rect(midtop = (120, WINDOW_HEIGHT - 60))
+    display.blit(score_surface, score_rect)  
+    display.blit(title_surface, title_rectangle)
+    pygame.draw.rect(display, "white", title_rectangle.inflate(50, 40), width=7, border_radius=5)
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # Pygame Init Part # # # # 
@@ -45,16 +61,21 @@ laser_surface = pygame.image.load(path+"images/projectiles/single_red1.png").con
 laser_surface = pygame.transform.scale2x(laser_surface)
 laser_list = []                                                                 
 
+# Import Text
 background_surface = pygame.image.load(path+"./images/background/background1.png").convert()
 font = pygame.font.Font(path+"./fonts/subatomic.ttf", 50)
+font_score = pygame.font.Font(path+"fonts/subatomic.ttf", 30)
 title_surface = font.render("Space Boi", True, "White")
 title_rectangle = title_surface.get_rect(center=(WINDOW_WIDTH / 2, 150))
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # # # # Player Methods # # # # 
 x_speed = 0
 y_speed = 0
 move_speed = 7
+can_fire = True
+last_laser_time = None
 
 # GAME LOOP
 while True:
@@ -64,10 +85,17 @@ while True:
             pygame.quit() 
             sys.exit()
     
-    if event.type == pygame.JOYBUTTONDOWN:
+    if event.type == pygame.JOYBUTTONDOWN and can_fire:
         if pygame.joystick.Joystick(0).get_button(0) or pygame.joystick.Joystick(0).get_button(1):
+            
+            # Laser Logic
             laser_rectangle = laser_surface.get_rect(midbottom = (ship_rectangle.midtop))
+            laser_rectangle.centery += 30
             laser_list.append(laser_rectangle)
+            
+            # Laser Timer
+            can_fire = False
+            last_laser_time = pygame.time.get_ticks()
             
     #Limiting Frame Rate
     delta_time = clock.tick(60) / 1000
@@ -77,18 +105,18 @@ while True:
     y_speed = round(pygame.joystick.Joystick(0).get_axis(1))
     move(x_speed, y_speed)
     
+    # Laser Updates
     laser_update(laser_list)
+    can_fire = laser_cooldown(can_fire, 400)
     
-    # 2. Updates
+    # drawings
     display.fill((0, 0, 0))
     display.blit(background_surface, (0, 0))
     display.blit(ship_surface, ship_rectangle)
     for laser in laser_list:
         display.blit(laser_surface, laser)
-    display.blit(title_surface, title_rectangle)
     
-    # Draw custom Rectangles here
-    pygame.draw.rect(display, "white", title_rectangle.inflate(50, 40), width=7, border_radius=5)
+    display_score()
     
     # draw final frame
     pygame.display.update()
