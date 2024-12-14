@@ -1,7 +1,7 @@
 import pygame
 import math
 import sys
-path = "Game Dev Projects/01 Space Boi/"
+path = "Game Dev Projects/01 Space Boi/project/"
 
 # Move Methode für die Spielfigur
 def move(x_speed, y_speed):
