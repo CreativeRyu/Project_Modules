@@ -1,7 +1,7 @@
 import pygame
 import math
 import sys
-from random import randint
+from random import randint, uniform
 path = "Game Dev Projects/01 Space Boi/project/"
 
 # Move Methode für die Spielfigur
@@ -17,7 +17,7 @@ def move(x_speed, y_speed):
     ship_rectangle.move_ip(normalized_x * move_speed, normalized_y * move_speed)
 
 # Bewegung der Laser zum oberen Bildschirmrand
-def laser_update(laser_list, speed=400):
+def laser_update(laser_list, speed=300):
     for laser in laser_list:
         laser.y -= speed * delta_time
         if laser.bottom < 0:
@@ -32,10 +32,12 @@ def laser_cooldown(can_fire, duration= 500):
     return can_fire
 
 def asteroid_behaviour(asteroid_list, speed=300):
-    for asteroid in asteroid_list:
-        asteroid.y += speed * delta_time
+    for asteroid_tuple in asteroid_list:
+        direction = asteroid_tuple[1]
+        asteroid = asteroid_tuple[0]
+        asteroid.center += direction * speed * delta_time                       
         if asteroid.top >= WINDOW_HEIGHT:
-            asteroid_list.remove(asteroid)
+            asteroid_list.remove(asteroid_tuple)
     
 def display_score():
     score = f"Score: {pygame.time.get_ticks() // 1000}"
@@ -109,11 +111,16 @@ while True:
                 can_fire = False
                 last_laser_time = pygame.time.get_ticks()
         
-        x_position = randint(-100, WINDOW_WIDTH + 100)
-        y_position = randint(-100, -50)
-        if event.type == asteroid_timer: 
+        # Asteroid Timer
+        if event.type == asteroid_timer:
+            # Random Position
+            x_position = randint(-100, WINDOW_WIDTH + 100)
+            y_position = randint(-100, -50)
+            # create Rectangle
             asteroid_rectangle = asteroid_surface.get_rect(center = (x_position, y_position))
-            asteroid_list.append(asteroid_rectangle)
+            # create random direction
+            direction = pygame.math.Vector2(uniform(-0.5, 0.5),1)                                           
+            asteroid_list.append((asteroid_rectangle, direction))
                     
     #Limiting Frame Rate
     delta_time = clock.tick(60) / 1000
@@ -137,8 +144,8 @@ while True:
     for laser in laser_list:
         display.blit(laser_surface, laser)
 
-    for asteroid in asteroid_list:
-        display.blit(asteroid_surface, asteroid)
+    for asteroid_tuple in asteroid_list:
+        display.blit(asteroid_surface, asteroid_tuple[0])
     
     display_score()
     
