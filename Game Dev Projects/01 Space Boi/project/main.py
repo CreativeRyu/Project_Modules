@@ -137,6 +137,14 @@ while True:
     # Asteroid Update
     asteroid_behaviour(asteroid_list)
     
+    # Collisions
+    for laser in laser_list:
+        for asteroid_tuple in asteroid_list:
+            asteroid = asteroid_tuple[0]
+            if laser.colliderect(asteroid):
+                asteroid_list.remove(asteroid_tuple)
+                laser_list.remove(laser)
+    
     # drawings
     display.fill((0, 0, 0))
     display.blit(background_surface, (0, 0))
