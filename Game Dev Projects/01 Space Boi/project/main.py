@@ -89,7 +89,16 @@ move_speed = 7
 can_fire = True
 last_laser_time = None
 asteroid_timer = pygame.event.custom_type()
-pygame.time.set_timer(asteroid_timer, 1000)    
+pygame.time.set_timer(asteroid_timer, 1000)
+
+# Import Sounds
+laser_sfx = pygame.mixer.Sound(path+"sounds/laser.ogg")
+laser_sfx.set_volume(0.4)
+explosion_sfx = pygame.mixer.Sound(path+"sounds/explosion.wav")
+explosion_sfx.set_volume(0.4)
+bg_music = pygame.mixer.Sound(path+"music/space-ranger-moire-main.mp3")
+bg_music.set_volume(0.3)
+bg_music.play(loops= -1)
 
 # GAME LOOP
 while True:
@@ -104,8 +113,11 @@ while True:
                 
                 # Laser Logic
                 laser_rectangle = laser_surface.get_rect(midbottom = (ship_rectangle.midtop))
-                laser_rectangle.centery += 30
+                laser_rectangle.centery += 45
                 laser_list.append(laser_rectangle)
+                
+                # Play Laser Sound
+                laser_sfx.play()
                 
                 # Laser Timer
                 can_fire = False
@@ -142,6 +154,7 @@ while True:
         for asteroid_tuple in asteroid_list:
             asteroid = asteroid_tuple[0]
             if laser.colliderect(asteroid):
+                explosion_sfx.play()
                 asteroid_list.remove(asteroid_tuple)
                 laser_list.remove(laser)
     
